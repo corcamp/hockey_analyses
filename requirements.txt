@@ -1,0 +1,11 @@
+# Requirements to specify libraries needed for this project. 
+# Author: corijcam@gmail.com
+# Date: 19/12/2025
+# Update: 
+
+requests
+pandas
+jupyter
+matplotlib
+seaborn
+numpy
