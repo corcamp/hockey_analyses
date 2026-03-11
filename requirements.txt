@@ -3,9 +3,10 @@
 # Date: 19/12/2025
 # Update: 
 
-requests
-pandas
-jupyter
-matplotlib
-seaborn
-numpy
+requests        == 2.32.5
+pandas          == 2.3.3
+jupyter         == 1.1.1
+matplotlib      == 3.10.8
+seaborn         == 0.13.2
+numpy           == 2.2.6
+pyarrow         == 23.0.1
