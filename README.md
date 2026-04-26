@@ -10,7 +10,7 @@ Personal repo for analysing present and historical National Hockey League and li
         ```
         .venv\Scripts\activate
         ```
-    - On Linux
+    - On Linux or Mac
         ```
         source .venv/bin/activate
         ```

@@ -1,5 +1,6 @@
 import requests
 
+
 class APIClient:
     """
     A reusable class to interact with REST APIs.
