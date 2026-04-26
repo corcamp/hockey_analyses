@@ -43,25 +43,10 @@ class APIClient:
         response = requests.post(url, headers=self.headers, data=data, json=json, auth=self.auth)
         response.raise_for_status()
         return response.json()
-
-    def extract_data(self, endpoint, params=None, key=None):
-        """
-        Extract specific data from the API response.
-
-        :param endpoint: API endpoint
-        :param params: Optional query parameters
-        :param key: Key to extract from the JSON response (nested keys supported with dot notation)
-        :return: Extracted data or full JSON if key is None
-        """
-        data = self.get(endpoint, params=params)
-        if key:
-            for k in key.split('.'):
-                data = data.get(k, {})
-        return data
+    
 
 
-from pathlib import Path
-import pandas as pd
+
 
 # Example usage:
 if __name__ == "__main__":
@@ -72,31 +57,26 @@ if __name__ == "__main__":
     #print(raw_data)
     
     # Player Data
-    #playerisActive = api.extract_data("player/8478402/landing") # key="isActive"
+    #playerisActive = api.get("player/8478402/landing") # key="isActive"
 
     # Team Data
-    #playerisActive = api.extract_data("standings/now") # key="isActive" 
+    #playerisActive = api.get("standings/now") # key="isActive" 
 
-    #api.extract_data("player/8478402/game-log/20252026/2", key="")
+    #api.get("player/8478402/game-log/20252026/2")
 
 
     resapi = APIClient("https://api.nhle.com/stats/rest") 
 
-    resapi.extract_data("en/players?limit=3&sort=lastName&dir=asc&cayenneExp=currentTeamId=7", key="")
+    resapi.get("en/players?limit=3&sort=lastName&dir=asc&cayenneExp=currentTeamId=7")
 
     # Get team by id 
-    resapi.extract_data("en/team/id/10", key="")
+    resapi.get("en/team/id/10")
 
     # Get game information 
-    resapi.extract_data("en/game", key="")
+    resapi.get("en/game")
 
     # Get game information 
-    resapi.extract_data("en/game/meta", key="")
+    #resapi.get("en/game/meta")
 
     # Shift charts ( Function of Game ID )
-    resapi.extract_data("en/shiftcharts?cayenneExp=gameId=2021020001", key="")
-
-
-    tempo =0 
-
-
+    resapi.get("en/shiftcharts?cayenneExp=gameId=2021020001")
