@@ -27,18 +27,6 @@ class ClassProp():
         for obj in objs:
             objs_data.append(obj.json_data)
         return self.dataToDf(objs_data)
-
-    @property
-    def forwards_df(self):
-        return self.objsToDf(self.forwards)
-    
-    @property
-    def defensemen_df(self):
-        return self.objsToDf(self.defensemen)
-    
-    @property
-    def goalies_df(self):
-        return self.objsToDf(self.goalies)
     
     @property
     def players_df(self):
@@ -56,18 +44,6 @@ class ClassProp():
 class Memory_Manager(ClassProp):
     def __init__(self):
         pass
-
-    @property
-    def forwards(self):
-        return Player.forward_by_id.values()
-    
-    @property
-    def defensemen(self):
-        return Player.defensemen_by_id.values()
-    
-    @property
-    def goalies(self):
-        return Player.goalies_by_id.values()
 
     @property
     def players(self):
@@ -92,11 +68,7 @@ class TeamDataBySeason(ApiClass, ClassProp):
         self.teamId = teamId
         self.seasonId = seasonId
 
-        self.forwards :list[Player] = []
-        self.defensemen :list[Player] = []
-        self.goalies :list[Player] = []
         self.games :list[Game] = []
-
 
         self.load_players()
         self.load_season_games()
@@ -198,44 +170,6 @@ class Team(ApiClass, ClassProp):
         """
         return self.api.get("/".join(["roster-season",self.teamId]))
     
-
-    @property
-    def forwards(self):
-        """
-        Output all forwards from all Seasons Loaded
-        
-        :return: Forwards
-        """
-        players = []
-        for season_data in self.data_by_season.values():
-            players.extend(season_data.forwards)
-        return players
-    
-
-    @property
-    def defensemen(self):
-        """
-        Output all defensemen from all Seasons Loaded
-        
-        :return: Defensemen
-        """
-        players = []
-        for season_data in self.data_by_season.values():
-            players.extend(season_data.defensemen)
-        return players
-    
-    @property
-    def goalies(self):
-        """
-        Output all goalies from all Seasons Loaded
-        
-        :return: Goalies
-        """
-        players = []
-        for season_data in self.data_by_season.values():
-            players.extend(season_data.goalies)
-        return players
-
     @property
     def players(self):
         """
@@ -265,10 +199,6 @@ class Player(ApiClass, PLAYER_DEFAULTS):
     :param playerId: playerId (int) - player ID
     """
     player_by_id = {}
-
-    forward_by_id = {}
-    defensemen_by_id = {}
-    goalies_by_id = {}
 
     def __init__(self, playerId:int):
         super().__init__()

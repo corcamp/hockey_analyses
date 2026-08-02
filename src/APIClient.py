@@ -1,10 +1,14 @@
 import requests
+import time 
 
+
+MAX_REQUESTS_PER_MIN = 1000
 
 class APIClient:
     """
     A reusable class to interact with REST APIs.
     """
+    lastRequestTime = 0 
 
     def __init__(self, base_url, headers=None, auth=None):
         """
@@ -18,6 +22,20 @@ class APIClient:
         self.headers = headers or {}
         self.auth = auth
 
+    def checkRequestsRate(self):
+        "Sleep Function until Acceptable requests rate"
+
+        # Calculate rate 
+        currentTime = time.time()
+
+        timeInter = currentTime - APIClient.lastRequestTime
+        rate = 60/timeInter # r/min
+
+        if rate > MAX_REQUESTS_PER_MIN:
+            sleepTime = (1/(MAX_REQUESTS_PER_MIN/60))-timeInter
+            time.sleep(sleepTime)
+        return True
+
     def get(self, endpoint, params=None):
         """
         Perform a GET request.
@@ -27,8 +45,10 @@ class APIClient:
         :return: JSON response or raises an exception if request fails
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        self.checkRequestsRate()
         response = requests.get(url, headers=self.headers, params=params, auth=self.auth)
         response.raise_for_status()
+        APIClient.lastRequestTime = time.time()
         return response.json()
 
     def post(self, endpoint, data=None, json=None):
@@ -41,8 +61,10 @@ class APIClient:
         :return: JSON response
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        self.checkRequestsRate()
         response = requests.post(url, headers=self.headers, data=data, json=json, auth=self.auth)
         response.raise_for_status()
+        APIClient.lastRequestTime = time.time()
         return response.json()
     
 
