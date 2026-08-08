@@ -7,11 +7,11 @@ from .defaultDataClass import *
 NHL_API_URL = "https://api-web.nhle.com/v1"
 NHL_STATS_API_URL = "https://api.nhle.com/stats/rest"
 
+nhlApiClient = APIClient(NHL_API_URL)
 
-class ApiClass():
-    def __init__(self):
-        self.api = APIClient(NHL_API_URL) 
-
+@dataclass
+class apiDef():
+    api = nhlApiClient
 
 class ClassProp():
     def __init__(self):
@@ -41,7 +41,7 @@ class ClassProp():
         return self.objsToDf(self.games)
 
 
-class Memory_Manager(ClassProp):
+class Memory_Manager(apiDef,ClassProp):
     def __init__(self):
         pass
 
@@ -61,14 +61,13 @@ class Memory_Manager(ClassProp):
     def teams(self):
         return Team.team_by_id.values()
 
-
-class TeamDataBySeason(ApiClass, ClassProp):
-    def __init__(self, teamId:str, seasonId):
+class TeamDataBySeason(apiDef,ClassProp):
+    def __init__(self, teamId:str, seasonId:int):
         super().__init__()
         self.teamId = teamId
         self.seasonId = seasonId
-
         self.games :list[Game] = []
+        self.players :list[Player] = []
 
         self.load_players()
         self.load_season_games()
@@ -77,13 +76,13 @@ class TeamDataBySeason(ApiClass, ClassProp):
         roster = self.get_roster() 
 
         for pl in roster["forwards"] :
-            self.forwards.append(Player(pl["id"]))
+            self.players.append(Player(pl["id"]))
 
         for pl in roster["defensemen"] :
-            self.defensemen.append(Player(pl["id"]))
+            self.players.append(Player(pl["id"]))
 
         for pl in roster["goalies"] :
-            self.goalies.append(Player(pl["id"]))
+            self.players.append(Player(pl["id"]))
 
     def load_season_games(self):
         sche = self.api.get("/".join(["club-schedule-season",self.teamId,str(self.seasonId)]))
@@ -110,16 +109,7 @@ class TeamDataBySeason(ApiClass, ClassProp):
         :return: (list) Roaster List
         """
         return self.api.get("/".join(["roster",self.teamId,str(self.seasonId)]))
-    
-    
-    @property
-    def players(self):
-        """
-        Output all players
-        
-        :return: Players
-        """
-        return self.forwards+self.defensemen+self.goalies
+
 
     @property
     def events(self):
@@ -133,14 +123,14 @@ class TeamDataBySeason(ApiClass, ClassProp):
             events.extend(game.events)
         return events
     
-class Team(ApiClass, ClassProp):
+class Team(apiDef,ClassProp):
     """
     Team Information class from NHL API
     On specific season
 
     :param team: team (string) - Three-letter team code
     """
-    team_by_id = {}
+    team_by_id = {} 
 
     def __init__(self, teamId:str):
         super().__init__()
@@ -157,8 +147,18 @@ class Team(ApiClass, ClassProp):
 
         Team.team_by_id[teamId] = self
 
-    
+        self._roster_season = None
+
+    @property
+    def roster_season(self):
+        if self._roster_season == None:
+            self._roster_season = self.get_roster_season()
+        return self._roster_season
+
     def load_data(self, seasonId:int):
+        # Check if team in season 
+        if seasonId not in self.roster_season:
+            return
         # Load Data by Season
         if seasonId not in self.data_by_season:
             self.data_by_season[seasonId] = TeamDataBySeason(self.teamId,seasonId)
@@ -169,15 +169,6 @@ class Team(ApiClass, ClassProp):
         :return: JSON response
         """
         return self.api.get("/".join(["roster-season",self.teamId]))
-    
-    @property
-    def players(self):
-        """
-        Output all players from all Seasons Loaded
-        
-        :return: Players
-        """
-        return self.forwards+self.defensemen+self.goalies
 
     @property
     def events(self):
@@ -191,8 +182,7 @@ class Team(ApiClass, ClassProp):
             events.extend(game.events)
         return events
     
-
-class Player(ApiClass, PLAYER_DEFAULTS):
+class Player(apiDef,PLAYER_DEFAULTS):
     """
     Player Information class from NHL API
 
@@ -217,7 +207,7 @@ class Player(ApiClass, PLAYER_DEFAULTS):
         Player.player_by_id[playerId] = self
 
 
-class Game(ApiClass, GAME_DEFAULTS):
+class Game(apiDef,GAME_DEFAULTS):
 
     game_by_id = {}
 
@@ -255,7 +245,7 @@ class Game(ApiClass, GAME_DEFAULTS):
         return json_data
     
 
-class Event(ApiClass, EVENT_DEFAULTS):
+class Event(apiDef,EVENT_DEFAULTS):
 
     event_by_id = {}
 
@@ -272,3 +262,6 @@ class Event(ApiClass, EVENT_DEFAULTS):
 
         return json_data
 
+
+# Definition of the Memory Manager
+MEMORY_MANAGER = Memory_Manager()
