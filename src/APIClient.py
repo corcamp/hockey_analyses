@@ -17,27 +17,27 @@ class APIClient:
         :param headers: Optional dictionary of headers
         :param auth: Optional authentication tuple (username, password) or requests Auth object
         """
-        self.lastRequestTime = 0 
+        self.last_request_time = 0 
         self.base_url = base_url.rstrip('/')
         self.headers = headers or {}
         self.auth = auth
 
-    def checkRequestsRate(self):
+    def check_requests_rate(self):
         "Sleep Function until Acceptable requests rate"
 
         # Calculate rate 
-        currentTime = time.time()
+        current_time= time.time()
 
-        timeInter = currentTime - self.lastRequestTime
-        if timeInter == 0 :
+        time_inter = current_time- self.last_request_time
+        if time_inter == 0 :
             # TODO, find why rate is sometimes equal to zero
             rate = inf
         else: 
-            rate = 60/timeInter # r/min
+            rate = 60/time_inter # r/min
 
         if rate > MAX_REQUESTS_PER_MIN:
-            sleepTime = (1/(MAX_REQUESTS_PER_MIN/60))-timeInter
-            time.sleep(sleepTime)
+            sleep_time = (1/(MAX_REQUESTS_PER_MIN/60))-time_inter
+            time.sleep(sleep_time)
         return True
 
     def get(self, endpoint, params=None):
@@ -49,9 +49,15 @@ class APIClient:
         :return: JSON response or raises an exception if request fails
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        self.checkRequestsRate()
-        response = requests.get(url, headers=self.headers, params=params, auth=self.auth)
-        self.lastRequestTime = time.time()
+        self.check_requests_rate()
+        response = requests.get(
+            url, 
+            headers=self.headers, 
+            params=params, 
+            auth=self.auth, 
+            timeout = 0.1
+            )
+        self.last_request_time = time.time()
         response.raise_for_status()
         return response.json()
 
@@ -65,9 +71,16 @@ class APIClient:
         :return: JSON response
         """
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        self.checkRequestsRate()
-        response = requests.post(url, headers=self.headers, data=data, json=json, auth=self.auth)
-        self.lastRequestTime = time.time()
+        self.check_requests_rate()
+        response = requests.post(
+            url,
+            headers=self.headers,
+            data=data,
+            json=json,
+            auth=self.auth,
+            timeout = 0.1
+            )
+        self.last_request_time = time.time()
         response.raise_for_status()
         return response.json()
     
@@ -78,11 +91,11 @@ class APIClient:
 # Example usage:
 if __name__ == "__main__":
     api = APIClient("https://api-web.nhle.com/v1") # , headers={"Authorization": "Bearer YOUR_TOKEN"}
-    
+   
     # Fetch raw JSON
     #raw_data = api.get("standings/now")
     #print(raw_data)
-    
+
     # Player Data
     #playerisActive = api.get("player/8478402/landing") # key="isActive"
 
