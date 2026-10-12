@@ -17,7 +17,7 @@ class APIClient:
         :param headers: Optional dictionary of headers
         :param auth: Optional authentication tuple (username, password) or requests Auth object
         """
-        self.last_request_time = 0 
+        self.last_request_time = 0
         self.base_url = base_url.rstrip('/')
         self.headers = headers or {}
         self.auth = auth
@@ -51,10 +51,10 @@ class APIClient:
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         self.check_requests_rate()
         response = requests.get(
-            url, 
-            headers=self.headers, 
-            params=params, 
-            auth=self.auth, 
+            url,
+            headers=self.headers,
+            params=params,
+            auth=self.auth,
             timeout = 0.1
             )
         self.last_request_time = time.time()
@@ -83,7 +83,7 @@ class APIClient:
         self.last_request_time = time.time()
         response.raise_for_status()
         return response.json()
-    
+
 
 
 
@@ -91,7 +91,7 @@ class APIClient:
 # Example usage:
 if __name__ == "__main__":
     api = APIClient("https://api-web.nhle.com/v1") # , headers={"Authorization": "Bearer YOUR_TOKEN"}
-   
+
     # Fetch raw JSON
     #raw_data = api.get("standings/now")
     #print(raw_data)
@@ -100,22 +100,22 @@ if __name__ == "__main__":
     #playerisActive = api.get("player/8478402/landing") # key="isActive"
 
     # Team Data
-    #playerisActive = api.get("standings/now") # key="isActive" 
+    #playerisActive = api.get("standings/now") # key="isActive"
 
     #api.get("player/8478402/game-log/20252026/2")
 
 
-    resapi = APIClient("https://api.nhle.com/stats/rest") 
+    resapi = APIClient("https://api.nhle.com/stats/rest")
 
     resapi.get("en/players?limit=3&sort=lastName&dir=asc&cayenneExp=currentTeamId=7")
 
-    # Get team by id 
+    # Get team by id
     resapi.get("en/team/id/10")
 
-    # Get game information 
+    # Get game information
     resapi.get("en/game")
 
-    # Get game information 
+    # Get game information
     #resapi.get("en/game/meta")
 
     # Shift charts ( Function of Game ID )
